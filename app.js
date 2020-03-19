@@ -56,9 +56,11 @@ function app() {
     const eventId = this.getAttribute('data-eventid');
     const dupBtn = `<div class="dup-btn" data-id="${eventId}">${dupIcon}</div>`;
     intervalAddIcon = setInterval(function () {
-      if(document.querySelector('.pPTZAe') == null) return;
+      const eventNode = document.querySelector('.pPTZAe');
+      if(eventNode == null) return;
       clearInterval(intervalAddIcon);
-      document.querySelector('.pPTZAe').prepend(htmlToElement(dupBtn));
+      if(eventNode.querySelector('.dup-btn') != null) return;
+      eventNode.prepend(htmlToElement(dupBtn));
     }, 50);
   });
 
