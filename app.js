@@ -1,5 +1,131 @@
 'use strict';
 
+/** ========== CONSTANTS ========== */
+let intervalInjectIcon;
+let intervalDuplicateEvent;
+let intervalGoToDay;
+let intervalSaveEvent;
+const DELAY = 50;
+let currentDate = "";
+/** ======================================== */
+
+
+/** ========== MAIN FUNCTION ========== */
+function app() {
+  /**
+   * Inject the duplicate icon on a Google Calendar event click 
+   */
+  addEvent(document, 'click', '.NlL62b[data-eventid]', function () {
+    const eventId = this.getAttribute('data-eventid');
+    const dupBtn = `<div class="dup-btn" data-id="${eventId}">${dupIcon}</div>`;
+    intervalInjectIcon = setInterval(function () {
+      const eventNode = document.querySelector('.pPTZAe');
+      if (eventNode == null) return;
+      clearInterval(intervalInjectIcon);
+      if (eventNode.querySelector('.dup-btn') != null) return;
+      eventNode.prepend(htmlToElement(dupBtn));
+    }, DELAY);
+  });
+
+  /** Toggle active state on duplicate icon click */
+  addEvent(document, 'click', '.dup-btn', function () { duplicateEvent(); });
+};
+
+function duplicateEvent() {
+  intervalDuplicateEvent = setInterval(function () {
+    /** Trigger click on the duplicate button in the options list */
+    var optionsButton = document.querySelector('div[aria-label=Options]');
+    var duplicateButton = document.querySelector('span[aria-label=Duplicate]');
+
+    if (optionsButton != null && duplicateButton != null) {
+      // Then click the duplicate button
+      currentDate = getCurrentDate();
+      clearInterval(intervalDuplicateEvent);
+      simulateClick(duplicateButton);
+      saveEvent();
+    }
+  }, DELAY);
+}
+
+function saveEvent() {
+  intervalSaveEvent = setInterval(function() {
+    /** Trigger save button when edit modal has opened */
+    var saveButton = document.querySelector('div[aria-label=Save]');
+    if (saveButton == null) return;
+    clearInterval(intervalSaveEvent);
+    saveButton.click();
+
+    goToCurrentDate();
+  }, DELAY);
+}
+
+function goToCurrentDate() {
+  intervalGoToDay = setInterval(function() {
+    if(location.href.includes("duplicate")) return;
+    clearInterval(intervalGoToDay);
+    
+    const miniDay = document.querySelector(".W0m3G");
+    const miniWeek = miniDay.parentNode;
+    const clonedDay = miniDay.cloneNode();
+    clonedDay.setAttribute("data-date", currentDate);
+    miniWeek.append(clonedDay); // TODO: try triggering click without appending
+    clonedDay.click();
+    clonedDay.remove();
+  }, DELAY);
+}
+/** ======================================== */
+
+/** ========== UTILITY FUNCTIONS ========== */
+function getCurrentDate() {
+  let date;
+  let splittedUrl = location.href.split('/');
+  let len = splittedUrl.length;
+  if (isNaN(splittedUrl[len - 1]) || isNaN(splittedUrl[len - 2]) || isNaN(splittedUrl[len - 3])) {
+    const today = new Date();
+    date = padDate(today.getFullYear(), today.getMonth() + 1, today.getDay());
+  } else {
+    date = padDate(splittedUrl[len - 3], splittedUrl[len - 2], splittedUrl[len -1]);
+  }
+  return date;
+}
+
+function padDate(year, month, day) {
+  return year + String(month).padStart(2, "0") + String(day).padStart(2, "0");
+}
+
+function addEvent(parent, evt, selector, handler) {
+  parent.addEventListener(evt, function (event) {
+    if (event.target.matches(selector + ', ' + selector + ' *')) {
+      handler.apply(event.target.closest(selector), arguments);
+    }
+  }, false);
+}
+
+function htmlToElement(html) {
+  var template = document.createElement('template');
+  html = html.trim(); // Never return a text node of whitespace as the result
+  template.innerHTML = html;
+  return template.content.firstChild;
+}
+
+function simulateClick(element) {
+  element.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, view: window }));
+  element.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true, view: window }))
+}
+/** ======================================== */
+
+
+/** ========== READY EVENT ========== */
+if (document.readyState === "complete" ||
+  (document.readyState !== "loading" && !document.documentElement.doScroll)
+) {
+  app();
+} else {
+  document.addEventListener("DOMContentLoaded", app);
+}
+/** ======================================== */
+
+/** ========== TEMPLATES ========== */
 const dupIcon = `
 <div>
   <div id="duplicate-event" class="uArJ5e Y5FYJe cjq2Db d29e1c"
@@ -18,60 +144,3 @@ const dupIcon = `
   </div>
 </div>
 `;
-
-
-if (document.readyState === "complete" ||
-  (document.readyState !== "loading" && !document.documentElement.doScroll)
-) {
-  app();
-} else {
-  document.addEventListener("DOMContentLoaded", app);
-}
-
-function addEvent(parent, evt, selector, handler) {
-  parent.addEventListener(evt, function (event) {
-    if (event.target.matches(selector + ', ' + selector + ' *')) {
-      handler.apply(event.target.closest(selector), arguments);
-    }
-  }, false);
-}
-
-/**
- * @param {String} HTML representing a single element
- * @return {Element}
- */
-function htmlToElement(html) {
-  var template = document.createElement('template');
-  html = html.trim(); // Never return a text node of whitespace as the result
-  template.innerHTML = html;
-  return template.content.firstChild;
-}
-
-let intervalAddIcon;
-let intervalClick;
-
-function app() {
-  // Click on an event
-  addEvent(document, 'click', '.NlL62b[data-eventid]', function () {
-    const eventId = this.getAttribute('data-eventid');
-    const dupBtn = `<div class="dup-btn" data-id="${eventId}">${dupIcon}</div>`;
-    intervalAddIcon = setInterval(function () {
-      const eventNode = document.querySelector('.pPTZAe');
-      if(eventNode == null) return;
-      clearInterval(intervalAddIcon);
-      if(eventNode.querySelector('.dup-btn') != null) return;
-      eventNode.prepend(htmlToElement(dupBtn));
-    }, 50);
-  });
-
-  // Click on my duplicate button
-  addEvent(document, 'click', '.dup-btn', function () {
-    history.pushState("", "", "https://calendar.google.com/calendar/r/eventedit/duplicate/" + this.getAttribute('data-id'));
-    location.hash = "duplicate";
-    intervalClick = setInterval(function () {
-      if(document.querySelector('#xSaveBu') == null) return;
-      clearInterval(intervalClick);
-      document.querySelector('#xSaveBu').click();
-    }, 50);
-  });
-};
