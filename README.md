@@ -22,6 +22,7 @@ Releases versions on Github correspond to the relative release version on the Ch
 
 We follow Semantic Versioning. The version X.Y.Z indicates:
 
-X is the major version (backward-incompatible),
-Y is the minor version (backward-compatible), and
-Z is the patch version (backward-compatible bug fix).
+* X is the major version (backward-incompatible),
+* Y is the minor version (backward-compatible), and
+* Z is the patch version (backward-compatible bug fix).
+
