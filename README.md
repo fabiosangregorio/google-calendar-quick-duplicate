@@ -17,3 +17,11 @@ This extension adds a "Duplicate event" icon on the event preview card, letting 
 ## Bugs and feature requests
 For any issues, bugs and feature requests feel free to [open an issue](https://github.com/fabiosangregorio/google-calendar-quick-duplicate/issues) on Github.
 
+## Versioning
+Releases versions on Github correspond to the relative release version on the Chrome Web Store.
+
+We follow Semantic Versioning. The version X.Y.Z indicates:
+
+X is the major version (backward-incompatible),
+Y is the minor version (backward-compatible), and
+Z is the patch version (backward-compatible bug fix).
