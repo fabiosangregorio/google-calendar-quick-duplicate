@@ -68,7 +68,8 @@ function duplicateEvent() {
   document.body.classList.add('gcqd-active');
   clearInterval(intervalDuplicateEvent);
   intervalDuplicateEvent = setInterval(function () {
-    var optionsButton = document.querySelector('.pPTZAe .K2mXPb');
+    var optionsButton = document.querySelector('.pPTZAe > div:last-child > div[role="button"]');
+    console.log(optionsButton);
     var duplicateButton = document.querySelector('.qjTEB [jsname="lbYRR"]');
     if (optionsButton != null && duplicateButton == null) {
       // Trigger click on the duplicate button in the options list
