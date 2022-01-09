@@ -150,6 +150,29 @@ function simulateClick(element) {
 /** ======================================== */
 
 
+/** ========== SHORTCUT LISTENERS ========== */
+
+// alt+click (option+click macos) to trigger duplicate event
+document.addEventListener("mousedown", function (e) {
+  
+  // make sure that only the alt key is pressed
+  if (e.shiftKey || e.ctrlKey) return;
+  if (!e.altKey) return;
+  
+  // make sure the click's target element is inside a calendar event box
+  const calendarEvents = [...document.querySelectorAll('div[data-eventid]')];
+  if (calendarEvents.some(calendarEvent=>calendarEvent.contains(e.target))) {
+
+    // duplicate the event. But timeout after one second in case of a false alarm
+    duplicateEvent();
+    setTimeout(() => {
+      clearInterval(intervalDuplicateEvent);
+    }, 1000);
+  }
+});
+
+/** ======================================== */
+
 /** ========== READY EVENT ========== */
 if (document.readyState === "complete" ||
   (document.readyState !== "loading" && !document.documentElement.doScroll)
