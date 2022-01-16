@@ -1,9 +1,16 @@
 'use strict';
 
 /** ========== TEMPLATES ========== */
-const dupIcon = `
+
+/**
+ * Makes the duplicate event icon
+ * An event named "Lunch" will have dark buttons because there is an image behind them
+ * @param {boolean} isCircle - for events that have circle buttons
+ */
+const dupIcon = (isCircle) => `
 <div>
-  <div id="duplicate-event" class="uArJ5e Y5FYJe cjq2Db d29e1c"
+  ${isCircle ? `<div class="VbA1ue"></div>` : ""}
+  <div id="duplicate-event" class="uArJ5e Y5FYJe ${isCircle ? `A1NRff` : `cjq2Db`} d29e1c"
     jslog="74327; 2:[&quot;43aadic948fhep9u1afopevksk&quot;,&quot;acd52hqnogl5bokq04klqkdqfg@group.calendar.google.com&quot;,false,null,0,0,null,null,0,false,[1,2,null,[&quot;&quot;,2]],false]; track:JIbuQc"
     jscontroller="VXdfxd"
     jsaction="mouseenter:tfO1Yc; mouseleave:JywGue;touchstart:p6p2H; focus:AHmuwe; blur:O22p3e;"
@@ -50,12 +57,14 @@ function app() {
    */
   addEvent(document, 'click', '.NlL62b[data-eventid]', function () {
     const eventId = this.getAttribute('data-eventid');
-    const dupBtn = `<div class="dup-btn" data-id="${eventId}">${dupIcon}</div>`;
     intervalInjectIcon = setInterval(function () {
       const eventNode = document.querySelector('.pPTZAe');
       if (eventNode == null) return;
       clearInterval(intervalInjectIcon);
       if (eventNode.querySelector('.dup-btn') != null) return;
+      // make sure the button matches the other buttons
+      const hasCircleBtns = eventNode.querySelector('.VbA1ue') !== null; // 'VbA1ue' is the circle class
+      const dupBtn = `<div class="dup-btn" data-id="${eventId}">${dupIcon(hasCircleBtns)}</div>`;
       eventNode.prepend(htmlToElement(dupBtn));
     }, DELAY);
   });
@@ -68,7 +77,8 @@ function duplicateEvent() {
   document.body.classList.add('gcqd-active');
   clearInterval(intervalDuplicateEvent);
   intervalDuplicateEvent = setInterval(function () {
-    var optionsButton = document.querySelector('.pPTZAe .K2mXPb');
+    var optionsButton = document.querySelector('.pPTZAe > div:last-child > div[role="button"]');
+    console.log(optionsButton);
     var duplicateButton = document.querySelector('.qjTEB [jsname="lbYRR"]');
     if (optionsButton != null && duplicateButton == null) {
       // Trigger click on the duplicate button in the options list
