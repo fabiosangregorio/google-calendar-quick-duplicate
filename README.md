@@ -10,7 +10,7 @@
 ## How it works
 This extension adds a "Duplicate event" icon on the event preview card, letting you quickly duplicate it with one single click.
 
-You can also quickly duplicate the event by holding Alt (Cmd on MacOS) while clicking the event.
+You can also quickly duplicate the event by holding Alt (option on MacOS) while clicking the event.
 
 <p align="center">
   <img src="./assets/second.png">
