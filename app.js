@@ -1,6 +1,7 @@
 "use strict";
 
 /** ========== CONSTANTS ========== */
+const EXTENSION_ID = "belnijodgolpgmpahmdkjbjehbobnfpd";
 const GCQD_DUPLICATE_BUTTON_CLASS = "dup-btn";
 const GCQD_DUPLICATE_BUTTON_SELECTOR = `.${GCQD_DUPLICATE_BUTTON_CLASS}`;
 const CIRCLE_BUTTON_CLASS = "VbA1ue";
@@ -11,7 +12,8 @@ const SAVE_BUTTON_SELECTOR = '[jsname="x8hlje"]';
 const DUPLICATE_BUTTON_SELECTOR = '.qjTEB [jsname="lbYRR"]';
 const MINI_CALENDAR_DAY_SELECTOR = ".W0m3G";
 const MINI_CALENDAR_CURRENT_DAY_SELECTOR = ".folmac";
-const INTERVAL_DELAY = 50;
+const INTERVAL_DELAY = 500;
+const REDIRECT_TO_PREVIOUS_CALENDAR_VIEW_MESSAGE = "REDIRECT_TO_PREV_CALENDAR_VIEW_MESSAGE";
 /** ======================================== */
 
 /** ========== TEMPLATES ========== */
@@ -62,7 +64,6 @@ let intervalInjectIcon;
 let intervalDuplicateEvent;
 let intervalGoToDay;
 let intervalSaveEvent;
-let currentDate = "";
 
 function app() {
   appendStyleTag(cssStyle);
@@ -123,9 +124,6 @@ function duplicateEvent() {
     if (isOptionsMenuClosed(optionsButton, duplicateButton)) {
       simulateClick(optionsButton);
     } else if (duplicateButton != null) {
-      currentDate = document
-        .querySelector(MINI_CALENDAR_CURRENT_DAY_SELECTOR)
-        .getAttribute("data-date");
       simulateClick(duplicateButton.parentNode);
       saveEvent();
     }
@@ -142,6 +140,7 @@ function isOptionsMenuClosed(optionsButton, duplicateButton) {
 
 /** Saves the duplicated event when the save modal has opened. */
 function saveEvent() {
+  let userPrevWorkingPage = location.href;
   clearInterval(intervalSaveEvent);
 
   intervalSaveEvent = setInterval(function () {
@@ -152,7 +151,7 @@ function saveEvent() {
     clearInterval(intervalSaveEvent);
     saveButton.click();
 
-    goToCurrentDate();
+    redirectToPrevDateView(userPrevWorkingPage);
   }, INTERVAL_DELAY);
 }
 
@@ -163,25 +162,19 @@ function saveEvent() {
  * duplicating the event.
  * FIXME: this sometimes doesn't work.
  */
-function goToCurrentDate() {
+function redirectToPrevDateView(redirectUrl) {
   clearInterval(intervalGoToDay);
 
   intervalGoToDay = setInterval(function () {
     if (location.href.includes("duplicate")) return;
     clearInterval(intervalGoToDay);
 
-    const todayDate = padDate(new Date());
-    if (currentDate !== todayDate) {
-      // FIXME: doing this when duplicating an event on today date results in a
-      // change of view
-      const miniDay = document.querySelector(MINI_CALENDAR_DAY_SELECTOR);
-      const miniWeek = miniDay.parentNode;
-      const clonedDay = miniDay.cloneNode();
-      clonedDay.setAttribute("data-date", currentDate);
-      miniWeek.append(clonedDay);
-      clonedDay.click();
-      clonedDay.remove();
-    }
+    chrome.runtime.sendMessage(EXTENSION_ID, 
+      {
+        "type": REDIRECT_TO_PREVIOUS_CALENDAR_VIEW_MESSAGE, 
+        "message": redirectUrl
+      }
+    );
 
     document.body.classList.remove("gcqd-active");
   }, INTERVAL_DELAY);
