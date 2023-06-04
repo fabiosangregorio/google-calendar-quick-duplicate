@@ -6,9 +6,9 @@ const GCQD_DUPLICATE_BUTTON_SELECTOR = `.${GCQD_DUPLICATE_BUTTON_CLASS}`;
 const CIRCLE_BUTTON_CLASS = "VbA1ue";
 const CALENDAR_EVENT_SELECTOR = ".NlL62b[data-eventid]";
 const EVENT_PANEL_SELECTOR = ".pPTZAe";
-const OPTIONS_BUTTON_SELECTOR = '.pPTZAe > div:last-child > div[role="button"]';
+const OPTIONS_BUTTON_SELECTOR = '.d29e1c';
 const SAVE_BUTTON_SELECTOR = '[jsname="x8hlje"]';
-const DUPLICATE_BUTTON_SELECTOR = '.qjTEB [jsname="lbYRR"]';
+const DUPLICATE_BUTTON_SELECTOR = '[jsname="lbYRR"]';
 const MINI_CALENDAR_DAY_SELECTOR = ".W0m3G";
 const MINI_CALENDAR_CURRENT_DAY_SELECTOR = ".folmac";
 const INTERVAL_DELAY = 50;
@@ -126,7 +126,7 @@ function duplicateEvent() {
       currentDate = document
         .querySelector(MINI_CALENDAR_CURRENT_DAY_SELECTOR)
         .getAttribute("data-date");
-      simulateClick(duplicateButton.parentNode);
+      simulateClick(duplicateButton);
       saveEvent();
     }
   }, INTERVAL_DELAY);
