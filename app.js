@@ -108,7 +108,7 @@ function prependDuplicateButton(eventPanelNode, eventId) {
 
 /** Returns true if the event panel has circle buttons. */
 function hasCircleButton(eventPanelNode) {
-  return eventPanelNode.querySelector(CIRCLE_BUTTON_CLASS) != null;
+  return eventPanelNode.querySelector(`.${CIRCLE_BUTTON_CLASS}`) != null;
 }
 
 function duplicateEvent() {
