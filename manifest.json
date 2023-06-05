@@ -5,9 +5,9 @@
     "48": "assets/icon48.png",
     "128": "assets/icon128.png"
   },
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A simple Chrome Extension to quickly duplicate events on Google Calendar.",
-  "manifest_version": 2,
+  "manifest_version": 3,
   "content_scripts": [{
       "matches": ["https://calendar.google.com/calendar/*"],
       "js": ["app.js"]
