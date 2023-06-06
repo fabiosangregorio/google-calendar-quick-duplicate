@@ -10,10 +10,8 @@ const EVENT_PANEL_SELECTOR = ".pPTZAe";
 const OPTIONS_BUTTON_SELECTOR = '.d29e1c';
 const SAVE_BUTTON_SELECTOR = '[jsname="x8hlje"]';
 const DUPLICATE_BUTTON_SELECTOR = '[jsname="lbYRR"]';
-const MINI_CALENDAR_DAY_SELECTOR = ".W0m3G";
-const MINI_CALENDAR_CURRENT_DAY_SELECTOR = ".folmac";
-const INTERVAL_DELAY = 500;
-const REDIRECT_TO_PREVIOUS_CALENDAR_VIEW_MESSAGE = "REDIRECT_TO_PREV_CALENDAR_VIEW_MESSAGE";
+const INTERVAL_DELAY = 50;
+const LONG_INTERVAL_DELAY = 500;
 /** ======================================== */
 
 /** ========== TEMPLATES ========== */
@@ -113,17 +111,19 @@ function hasCircleButton(eventPanelNode) {
 }
 
 function duplicateEvent() {
-  document.body.classList.add("gcqd-active");
   clearInterval(intervalDuplicateEvent);
 
   intervalDuplicateEvent = setInterval(function () {
     var optionsButton = document.querySelector(OPTIONS_BUTTON_SELECTOR);
     var duplicateButton = document.querySelector(DUPLICATE_BUTTON_SELECTOR);
 
+    if(optionsButton == null || duplicateButton == null) return;
+
     // Open the options menu if it's closed, then click the duplicate button.
     if (isOptionsMenuClosed(optionsButton, duplicateButton)) {
       simulateClick(optionsButton);
     } else if (duplicateButton != null) {
+      clearInterval(intervalDuplicateEvent);
       simulateClick(duplicateButton);
       saveEvent();
     }
@@ -140,45 +140,17 @@ function isOptionsMenuClosed(optionsButton, duplicateButton) {
 
 /** Saves the duplicated event when the save modal has opened. */
 function saveEvent() {
-  let userPrevWorkingPage = location.href;
   clearInterval(intervalSaveEvent);
-
+  
   intervalSaveEvent = setInterval(function () {
     var saveButton = document.querySelector(SAVE_BUTTON_SELECTOR);
     if (saveButton == null) return;
 
-    clearInterval(intervalDuplicateEvent);
     clearInterval(intervalSaveEvent);
     saveButton.click();
-
-    redirectToPrevDateView(userPrevWorkingPage);
-  }, INTERVAL_DELAY);
+  }, LONG_INTERVAL_DELAY);
 }
 
-/**
- * Returns to the date the user was to prior to duplicating the event.
- *
- * NOTE: this is needed because sometimes the calendar jumps back to today after
- * duplicating the event.
- * FIXME: this sometimes doesn't work.
- */
-function redirectToPrevDateView(redirectUrl) {
-  clearInterval(intervalGoToDay);
-
-  intervalGoToDay = setInterval(function () {
-    if (location.href.includes("duplicate")) return;
-    clearInterval(intervalGoToDay);
-
-    chrome.runtime.sendMessage(EXTENSION_ID, 
-      {
-        "type": REDIRECT_TO_PREVIOUS_CALENDAR_VIEW_MESSAGE, 
-        "message": redirectUrl
-      }
-    );
-
-    document.body.classList.remove("gcqd-active");
-  }, INTERVAL_DELAY);
-}
 
 /** Triggers event duplication on shortcut click. */
 function setUpShortcut(event) {
