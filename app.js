@@ -1,6 +1,7 @@
 "use strict";
 
 /** ========== CONSTANTS ========== */
+const EXTENSION_ID = "belnijodgolpgmpahmdkjbjehbobnfpd";
 const GCQD_DUPLICATE_BUTTON_CLASS = "dup-btn";
 const GCQD_DUPLICATE_BUTTON_SELECTOR = `.${GCQD_DUPLICATE_BUTTON_CLASS}`;
 const CIRCLE_BUTTON_CLASS = "VbA1ue";
@@ -9,9 +10,8 @@ const EVENT_PANEL_SELECTOR = ".pPTZAe";
 const OPTIONS_BUTTON_SELECTOR = '.d29e1c';
 const SAVE_BUTTON_SELECTOR = '[jsname="x8hlje"]';
 const DUPLICATE_BUTTON_SELECTOR = '[jsname="lbYRR"]';
-const MINI_CALENDAR_DAY_SELECTOR = ".W0m3G";
-const MINI_CALENDAR_CURRENT_DAY_SELECTOR = ".folmac";
 const INTERVAL_DELAY = 50;
+const LONG_INTERVAL_DELAY = 500;
 /** ======================================== */
 
 /** ========== TEMPLATES ========== */
@@ -62,7 +62,6 @@ let intervalInjectIcon;
 let intervalDuplicateEvent;
 let intervalGoToDay;
 let intervalSaveEvent;
-let currentDate = "";
 
 function app() {
   appendStyleTag(cssStyle);
@@ -112,20 +111,19 @@ function hasCircleButton(eventPanelNode) {
 }
 
 function duplicateEvent() {
-  document.body.classList.add("gcqd-active");
   clearInterval(intervalDuplicateEvent);
 
   intervalDuplicateEvent = setInterval(function () {
     var optionsButton = document.querySelector(OPTIONS_BUTTON_SELECTOR);
     var duplicateButton = document.querySelector(DUPLICATE_BUTTON_SELECTOR);
 
+    if(optionsButton == null || duplicateButton == null) return;
+
     // Open the options menu if it's closed, then click the duplicate button.
     if (isOptionsMenuClosed(optionsButton, duplicateButton)) {
       simulateClick(optionsButton);
     } else if (duplicateButton != null) {
-      currentDate = document
-        .querySelector(MINI_CALENDAR_CURRENT_DAY_SELECTOR)
-        .getAttribute("data-date");
+      clearInterval(intervalDuplicateEvent);
       simulateClick(duplicateButton);
       saveEvent();
     }
@@ -143,49 +141,16 @@ function isOptionsMenuClosed(optionsButton, duplicateButton) {
 /** Saves the duplicated event when the save modal has opened. */
 function saveEvent() {
   clearInterval(intervalSaveEvent);
-
+  
   intervalSaveEvent = setInterval(function () {
     var saveButton = document.querySelector(SAVE_BUTTON_SELECTOR);
     if (saveButton == null) return;
 
-    clearInterval(intervalDuplicateEvent);
     clearInterval(intervalSaveEvent);
     saveButton.click();
-
-    goToCurrentDate();
-  }, INTERVAL_DELAY);
+  }, LONG_INTERVAL_DELAY);
 }
 
-/**
- * Returns to the date the user was to prior to duplicating the event.
- *
- * NOTE: this is needed because sometimes the calendar jumps back to today after
- * duplicating the event.
- * FIXME: this sometimes doesn't work.
- */
-function goToCurrentDate() {
-  clearInterval(intervalGoToDay);
-
-  intervalGoToDay = setInterval(function () {
-    if (location.href.includes("duplicate")) return;
-    clearInterval(intervalGoToDay);
-
-    const todayDate = padDate(new Date());
-    if (currentDate !== todayDate) {
-      // FIXME: doing this when duplicating an event on today date results in a
-      // change of view
-      const miniDay = document.querySelector(MINI_CALENDAR_DAY_SELECTOR);
-      const miniWeek = miniDay.parentNode;
-      const clonedDay = miniDay.cloneNode();
-      clonedDay.setAttribute("data-date", currentDate);
-      miniWeek.append(clonedDay);
-      clonedDay.click();
-      clonedDay.remove();
-    }
-
-    document.body.classList.remove("gcqd-active");
-  }, INTERVAL_DELAY);
-}
 
 /** Triggers event duplication on shortcut click. */
 function setUpShortcut(event) {
