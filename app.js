@@ -9,8 +9,8 @@ const EVENT_PANEL_SELECTOR = ".pPTZAe";
 const OPTIONS_BUTTON_SELECTOR = '.d29e1c';
 const SAVE_BUTTON_SELECTOR = '[jsname="x8hlje"]';
 const DUPLICATE_BUTTON_SELECTOR = '[jsname="lbYRR"]';
-const MINI_CALENDAR_DAY_SELECTOR = ".W0m3G";
-const MINI_CALENDAR_CURRENT_DAY_SELECTOR = ".folmac";
+const MINI_CALENDAR_DAY_SELECTOR = ".pWJCO";
+const MINI_CALENDAR_CURRENT_DAY_SELECTOR = ".p6vobf";
 const INTERVAL_DELAY = 50;
 /** ======================================== */
 
