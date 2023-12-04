@@ -9,8 +9,9 @@ const EVENT_PANEL_SELECTOR = ".pPTZAe";
 const OPTIONS_BUTTON_SELECTOR = '.d29e1c';
 const SAVE_BUTTON_SELECTOR = '[jsname="x8hlje"]';
 const DUPLICATE_BUTTON_SELECTOR = '[jsname="lbYRR"]';
-const MINI_CALENDAR_DAY_SELECTOR = ".W0m3G";
-const MINI_CALENDAR_CURRENT_DAY_SELECTOR = ".folmac";
+const MINI_CALENDAR_NOT_THIS_MONTH_SELECTOR = ".q2d9Ze";
+const MINI_CALENDAR_DAY_SELECTOR = `.IOneve:not(${MINI_CALENDAR_NOT_THIS_MONTH_SELECTOR})`;
+const MINI_CALENDAR_CURRENT_DAY_SELECTOR = ".pWJCO";
 const INTERVAL_DELAY = 50;
 /** ======================================== */
 
@@ -82,6 +83,7 @@ function app() {
  * event.
  */
 function injectDuplicateButton(event) {
+  console.debug('Injecting duplicate button')
   const eventId = event.target.getAttribute("data-eventid");
 
   intervalInjectIcon = setInterval(function () {
@@ -96,6 +98,7 @@ function injectDuplicateButton(event) {
     if (duplicateButton == null) {
       prependDuplicateButton(eventPanelNode, eventId);
     }
+    console.debug('Injected duplicate button')
   }, INTERVAL_DELAY);
 }
 
@@ -112,20 +115,25 @@ function hasCircleButton(eventPanelNode) {
 }
 
 function duplicateEvent() {
+  console.debug('Duplicating event')
   document.body.classList.add("gcqd-active");
   clearInterval(intervalDuplicateEvent);
 
   intervalDuplicateEvent = setInterval(function () {
-    var optionsButton = document.querySelector(OPTIONS_BUTTON_SELECTOR);
-    var duplicateButton = document.querySelector(DUPLICATE_BUTTON_SELECTOR);
+    const optionsButton = document.querySelector(OPTIONS_BUTTON_SELECTOR);
+    const duplicateButton = document.querySelector(DUPLICATE_BUTTON_SELECTOR);
 
     // Open the options menu if it's closed, then click the duplicate button.
     if (isOptionsMenuClosed(optionsButton, duplicateButton)) {
+      console.debug('Opening options menu')
       simulateClick(optionsButton);
     } else if (duplicateButton != null) {
+      console.debug('Options menu opened')
       currentDate = document
         .querySelector(MINI_CALENDAR_CURRENT_DAY_SELECTOR)
         .getAttribute("data-date");
+      console.debug(`Current date: ${currentDate}`)
+      console.debug('Clicking duplicate button')
       simulateClick(duplicateButton);
       saveEvent();
     }
@@ -142,16 +150,17 @@ function isOptionsMenuClosed(optionsButton, duplicateButton) {
 
 /** Saves the duplicated event when the save modal has opened. */
 function saveEvent() {
+  console.debug('Saving event')
   clearInterval(intervalSaveEvent);
 
   intervalSaveEvent = setInterval(function () {
-    var saveButton = document.querySelector(SAVE_BUTTON_SELECTOR);
+    const saveButton = document.querySelector(SAVE_BUTTON_SELECTOR);
     if (saveButton == null) return;
 
     clearInterval(intervalDuplicateEvent);
     clearInterval(intervalSaveEvent);
     saveButton.click();
-
+    console.debug('Event saved')
     goToCurrentDate();
   }, INTERVAL_DELAY);
 }
@@ -164,6 +173,7 @@ function saveEvent() {
  * FIXME: this sometimes doesn't work.
  */
 function goToCurrentDate() {
+  console.debug(`Going to current date (${currentDate})`)
   clearInterval(intervalGoToDay);
 
   intervalGoToDay = setInterval(function () {
@@ -172,8 +182,8 @@ function goToCurrentDate() {
 
     const todayDate = padDate(new Date());
     if (currentDate !== todayDate) {
-      // FIXME: doing this when duplicating an event on today date results in a
-      // change of view
+      console.debug(`Current date (${currentDate}) is not today's date (${todayDate}): going to today's date.`)
+      // FIXME: doing this when duplicating an event on today date results in a change of view
       const miniDay = document.querySelector(MINI_CALENDAR_DAY_SELECTOR);
       const miniWeek = miniDay.parentNode;
       const clonedDay = miniDay.cloneNode();
@@ -181,7 +191,9 @@ function goToCurrentDate() {
       miniWeek.append(clonedDay);
       clonedDay.click();
       clonedDay.remove();
+      console.debug("Went to today's date")
     }
+    console.debug('Went to current date')
 
     document.body.classList.remove("gcqd-active");
   }, INTERVAL_DELAY);
@@ -226,7 +238,7 @@ function addEvent(parent, evt, selector, handler) {
 
 /** Returns the element node corresponding to the html in input. */
 function htmlToElement(html) {
-  var template = document.createElement("template");
+  const template = document.createElement("template");
   html = html.trim(); // Never return a text node with whitespace as the result
   template.innerHTML = html;
   return template.content.firstChild;
